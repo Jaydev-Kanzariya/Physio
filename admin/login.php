@@ -1,4 +1,5 @@
 <?php
+$a=array();
 session_start();
 
 require "config.php";
@@ -6,18 +7,39 @@ if(isset($_POST['login'])){
 $email = mysqli_real_escape_string($conn, $_POST['email']);
 $password =mysqli_real_escape_string($conn, $_POST['password']);
 
-$sql="SELECT * FROM doctor_master where email = '$email' && password='$password' ";
-$result = mysqli_query($conn,$sql);
 
-$rows = mysqli_num_rows($result);
-if ($rows == 1) {
-    // $_SESSION["email"]=$email;
-    $_SESSION["email"] = $email;
-    header("Location: index.php");
+if($email == NULL){
+  $a["email_null"] = true;
+}
+elseif(){
+  $a["email_format"] = true;
+}
+else{
+  unset($a["email_null"]);
+  unset($a["email_format"]);
+}
 
-} else {
-    // header("location:login.php");
-    echo "<script>alert('Invalid User ID/Password')</script>";
+if($password == NULL){
+  $a["password_null"] = true;
+}
+else{
+  unset($a["password_null"]);
+}
+
+if(count($a) == 0){
+  $sql="SELECT * FROM doctor_master where email = '$email' && password='$password' ";
+  $result = mysqli_query($conn,$sql);
+
+  $rows = mysqli_num_rows($result);
+  if ($rows == 1) {
+      // $_SESSION["email"]=$email;
+      $_SESSION["email"] = $email;
+      header("Location: index.php");
+
+  } else {
+      // header("location:login.php");
+      echo "<script>alert('Invalid User ID/Password')</script>";
+  }
 }
 }
 ?>
@@ -50,20 +72,30 @@ if ($rows == 1) {
 
       <form method="post" action="  ">
         <div class="input-group mb-3">
-          <input type="email" class="form-control" placeholder="Email" name="email" required>
+          <input type="text" class="form-control" placeholder="Email" name="email" value ="<?php if(isset($_POST['login'])){ echo $email; }  ?>">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>
             </div>
           </div>
+          <span><?php 
+            if(array_key_exists("email_null",$a)){
+              echo "Please enter your email.";
+            }
+          ?></span>
         </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="Password" name="password" value="" required>
+          <input type="password" class="form-control" placeholder="Password" name="password" value="<?php if(isset($_POST['login'])){ echo $password; }  ?>">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
             </div>
           </div>
+          <span><?php 
+            if(array_key_exists("password_null",$a)){
+              echo "Please enter your password.";
+            }
+          ?></span>
         </div>
         <div class="row">
           <div class="col-8">
