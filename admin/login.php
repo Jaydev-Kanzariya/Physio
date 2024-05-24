@@ -1,47 +1,44 @@
 <?php
-$a=array();
-session_start();
+  $a=array();
+  session_start();
 
-require "config.php";
-if(isset($_POST['login'])){
-$email = mysqli_real_escape_string($conn, $_POST['email']);
-$password =mysqli_real_escape_string($conn, $_POST['password']);
+  require "config.php";
+  if(isset($_POST['login'])){
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $password =mysqli_real_escape_string($conn, $_POST['password']);
+    // $rememberme =mysqli_real_escape_string($conn, $_POST['rememberme']);
 
+    if($email == NULL){
+      $a["email_null"] = true;
+    }
+    elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      $a["email_format"] = true;
+    }
 
-if($email == NULL){
-  $a["email_null"] = true;
-}
-elseif(){
-  $a["email_format"] = true;
-}
-else{
-  unset($a["email_null"]);
-  unset($a["email_format"]);
-}
+    if($password == NULL){
+      $a["password_null"] = true;
+    }
+    
+    // if($rememberme){
+    //   $a["Remember_me"] = true;
+    // }
 
-if($password == NULL){
-  $a["password_null"] = true;
-}
-else{
-  unset($a["password_null"]);
-}
+    if(count($a) == 0){
+      $sql="SELECT * FROM doctor_master where email = '$email' && password='$password' ";
+      $result = mysqli_query($conn,$sql);
 
-if(count($a) == 0){
-  $sql="SELECT * FROM doctor_master where email = '$email' && password='$password' ";
-  $result = mysqli_query($conn,$sql);
+      $rows = mysqli_num_rows($result);
+      if ($rows == 1) {
+          // $_SESSION["email"]=$email;
+          $_SESSION["login"] = true;
+          header("Location: index.php");
 
-  $rows = mysqli_num_rows($result);
-  if ($rows == 1) {
-      // $_SESSION["email"]=$email;
-      $_SESSION["email"] = $email;
-      header("Location: index.php");
-
-  } else {
-      // header("location:login.php");
-      echo "<script>alert('Invalid User ID/Password')</script>";
+      } else {
+          // header("location:login.php");
+          $a["msg"] = true;
+      }
+    }    
   }
-}
-}
 ?>
 
 <!DOCTYPE html>
@@ -70,37 +67,44 @@ if(count($a) == 0){
     <div class="card-body login-card-body">
       <p class="login-box-msg">Login Your Account</p>
 
-      <form method="post" action="  ">
-        <div class="input-group mb-3">
-          <input type="text" class="form-control" placeholder="Email" name="email" value ="<?php if(isset($_POST['login'])){ echo $email; }  ?>">
+      <form method="post" action="">
+        <div class="input-group mb-2">
+          <input type="email" class="form-control" placeholder="Email" name="email" value ="<?php if(isset($_POST['login'])){ echo $email; }  ?>">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>
             </div>
           </div>
-          <span><?php 
-            if(array_key_exists("email_null",$a)){
-              echo "Please enter your email.";
-            }
-          ?></span>
         </div>
-        <div class="input-group mb-3">
+          <div class="mb-2">
+            <span style="color:red"><?php 
+            if(array_key_exists("email_null",$a)){
+              echo 'Please enter your email.';
+            }
+            elseif(array_key_exists("email_format",$a)){
+              echo "Please enter valid email.";
+            }
+            ?></span>
+          </div>
+        <div class="input-group mb-2">
           <input type="password" class="form-control" placeholder="Password" name="password" value="<?php if(isset($_POST['login'])){ echo $password; }  ?>">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
             </div>
           </div>
-          <span><?php 
+        </div>
+        <div class="mb-2">
+        <?php 
             if(array_key_exists("password_null",$a)){
-              echo "Please enter your password.";
+              echo '<span style="color:red">Please enter your password.';
             }
-          ?></span>
+          ?>
         </div>
         <div class="row">
           <div class="col-8">
             <div class="icheck-primary">
-              <input type="checkbox" id="remember">
+              <input type="checkbox" id="remember" name="rememberme" >
               <label for="remember">
                 Remember Me
               </label>
@@ -113,6 +117,13 @@ if(count($a) == 0){
           <!-- /.col -->
         </div>
       </form>
+      <div class="mb-2">
+        <?php 
+            if(array_key_exists("msg",$a)){
+              echo '<span style="color:red">Please enter valid Id/Password.';
+            }
+          ?>
+        </div>
       <p class="mb-1">
         <a href="recover-password.php">I forgot my password</a>
       </p>

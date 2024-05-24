@@ -1,3 +1,12 @@
+<?php
+    session_start();
+
+    $email = $_SESSION["login"]; 
+    if($email == NULL){
+        header("Location: login.php");
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -37,6 +46,8 @@
 
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"> -->
 
+    <!-- logout -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -130,7 +141,8 @@
                                 <div class="media-body">
                                     <h3 class="dropdown-item-title">
                                         Nora Silvester
-                                        <span class="float-right text-sm text-warning"><i class="fas fa-star"></i></span>
+                                        <span class="float-right text-sm text-warning"><i
+                                                class="fas fa-star"></i></span>
                                     </h3>
                                     <p class="text-sm">The subject goes here</p>
                                     <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
@@ -238,6 +250,14 @@
                                 <i class="nav-icon fas fa-calendar-check"></i>
                                 <p>
                                     Appointment
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="logout.php" class="nav-link">
+                                <i class="fa fa-sign-out" style="font-size:26px"></i>
+                                <p>
+                                    Log Out
                                 </p>
                             </a>
                         </li>

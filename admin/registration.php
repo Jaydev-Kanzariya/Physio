@@ -1,3 +1,53 @@
+<?php
+  $a=array();
+  session_start();
+
+  require "config.php";
+  if(isset($_POST['register'])){
+    $name = mysqli_real_escape_string($conn, $_POST['fname']);
+    $phone = mysqli_real_escape_string($conn, $_POST['no']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $password =mysqli_real_escape_string($conn, $_POST['password']);
+    $repass = mysqli_real_escape_string($conn, $_POST['repass']);
+    // $rememberme =mysqli_real_escape_string($conn, $_POST['rememberme']);
+
+    if(empty($name)){
+      $a["name_null"] = true;
+    }
+
+    if($email == NULL){
+      $a["email_null"] = true;
+    }
+    elseif(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      $a["email_format"] = true;
+    }
+
+    if($password == NULL){
+      $a["password_null"] = true;
+    }
+    
+    // if($rememberme){
+    //   $a["Remember_me"] = true;
+    // }
+
+    if(count($a) == 0){
+      $sql = "INSERT INTO doctor_master(Full_name,Phone,Email,password)  VALUES ('$name','$phone','$email','$password')";
+	    $result = mysqli_query($conn, $sql);
+
+      $rows = mysqli_num_rows($result);
+      if ($rows == 1) {
+          // $_SESSION["email"]=$email;
+          $_SESSION["register"] = true;
+          header("Location: index.php");
+
+      } else {
+          // header("location:login.php");
+          $a["msg"] = true;
+      }
+    }    
+  }
+?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -28,12 +78,20 @@
         
         <form action="regi-process.php" method="post">
           <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Full name" name="fname" required>
+            <input type="text" class="form-control" placeholder="Full name" name="fname" value="<?php if(isset($_POST['register'])){ echo $name; }  ?>" >
             <div class="input-group-append">
               <div class="input-group-text">
-                <span class="fas fa-user"></span>
+                <span class="fas fa-user">
+                </span>
               </div>
             </div>
+          </div>
+          <div class="mb-2">
+          <?php 
+            if(array_key_exists("name_null",$a)){
+              echo '<span style="color:red">Please enter your name.';
+            }
+            ?>
           </div>
               <div class="input-group mb-3">
                 <input type="text" class="form-control" placeholder="Phone" name="no" required>
@@ -44,13 +102,23 @@
                 </div>
               </div>
               <div class="input-group mb-3">
-                <input type="email" class="form-control" placeholder="Email" name="email" required>
+                <input type="email" class="form-control" placeholder="Email" name="email" value="<?php if(isset($_POST['register'])){ echo $email; }  ?>">
                 <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>
             </div>
           </div>
         </div>
+        <div class="mb-2">
+            <span style="color:red"><?php 
+            if(array_key_exists("email_null",$a)){
+              echo 'Please enter your email.';
+            }
+            elseif(array_key_exists("email_format",$a)){
+              echo "Please enter valid email.";
+            }
+            ?></span>
+          </div>
         <div class="input-group mb-3">
           <input type="password" class="form-control" placeholder="Password" name="password" value="" id="password" required>
           <div class="input-group-append">
@@ -60,7 +128,7 @@
           </div>
         </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="Retype password" value="" id="re-type-password" required>
+          <input type="password" class="form-control" placeholder="Retype password" name="repass" value="" id="re-type-password" required>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -69,7 +137,7 @@
         </div>
         <div class="row">
           <div class="col-12">
-            <button type="submit" class="btn btn-primary btn-block">Register</button>
+            <button type="submit" class="btn btn-primary btn-block" name="register">Register</button>
           </div>
           <!-- /.col -->
         </div>

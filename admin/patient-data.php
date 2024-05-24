@@ -1,3 +1,12 @@
+<?php
+    session_start();
+
+    $email = $_SESSION["login"]; 
+    if($email == NULL){
+        header("Location: login.php");
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,9 +30,12 @@
     <!-- <link rel="stylesheet" href="dist/css/animations.css"> -->
     <link rel="stylesheet" href="dist/css/main.css">
     <!-- <link rel="stylesheet" href="dist/css/admin.css"> -->
+
+    <!-- logout -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
-<body class="hold-transition sidebar-mini">
+<body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
@@ -223,6 +235,14 @@
                                 <i class="nav-icon fas fa-calendar-check"></i>
                                 <p>
                                     Appointment
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="logout.php" class="nav-link">
+                                <i class="fa fa-sign-out" style="font-size:26px"></i>
+                                <p>
+                                    Log Out
                                 </p>
                             </a>
                         </li>

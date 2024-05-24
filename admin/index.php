@@ -1,12 +1,11 @@
 <?php
-session_start();
+  session_start();
 
-$email = $_SESSION["email"]; 
-if($email == NULL){
-  header("Location: login.php");
-}
+  $email = $_SESSION["login"]; 
+  if($email == NULL){
+    header("Location: login.php");
+  }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -35,6 +34,8 @@ if($email == NULL){
   <link rel="stylesheet" href="plugins/daterangepicker/daterangepicker.css">
   <!-- summernote -->
   <link rel="stylesheet" href="plugins/summernote/summernote-bs4.min.css">
+  <!-- logout -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -237,6 +238,14 @@ if($email == NULL){
               <i class="nav-icon fas fa-calendar-check"></i>
               <p>
                 Appointment
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="logout.php" class="nav-link">
+            <i class="fa fa-sign-out" style="font-size:26px"></i>
+              <p>
+                Log Out
               </p>
             </a>
           </li>
