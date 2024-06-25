@@ -1,19 +1,17 @@
 <?php
-  $a=array();
-  session_start();
+$a=array();
+session_start();
 
-  require "config.php";
-  if(isset($_POST['register'])){
-    $name = mysqli_real_escape_string($conn, $_POST['fname']);
-    $phone = mysqli_real_escape_string($conn, $_POST['no']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $password =mysqli_real_escape_string($conn, $_POST['password']);
-    $repass = mysqli_real_escape_string($conn, $_POST['repass']);
-    // $rememberme =mysqli_real_escape_string($conn, $_POST['rememberme']);
+require "config.php";
 
-    if(empty($name)){
-      $a["name_null"] = true;
-    }
+if(isset($_POST['register'])){
+  $name =  mysqli_real_escape_string($conn, $_POST['fname']);
+  // $gender =  $_POST['gender'];
+  $phone = mysqli_real_escape_string($conn, $_POST['no']);
+  $email = mysqli_real_escape_string($conn, $_POST['email']);
+  $password = mysqli_real_escape_string($conn, $_POST['password']);
+  $repassword = mysqli_real_escape_string($conn, $_POST['repassword']);
+  // $image = $_POST['image'];
 
     if($email == NULL){
       $a["email_null"] = true;
@@ -22,32 +20,56 @@
       $a["email_format"] = true;
     }
 
+    if($name == NULL){
+      $a["name_null"] = true;
+    }    
+
+    if($phone == NULL){
+      $a["phone_null"] = true;
+    }
+    elseif(!preg_match ("/^[0-9]*$/", $phone)){
+      $a["phone_format"] = true;
+    }
+
     if($password == NULL){
-      $a["password_null"] = true;
+    $a["password_null"] = true;
     }
     
-    // if($rememberme){
-    //   $a["Remember_me"] = true;
-    // }
+    if($repassword == NULL){
+      $a["repassword_null"] = true;
+    }
+    elseif($password != $repassword){
+      $a["match"] = true;
+    }
+    
 
     if(count($a) == 0){
-      $sql = "INSERT INTO doctor_master(Full_name,Phone,Email,password)  VALUES ('$name','$phone','$email','$password')";
-	    $result = mysqli_query($conn, $sql);
+      $sql="SELECT * FROM doctor_master where email = '$email' && password='$password' ";
+      $result = mysqli_query($conn,$sql);
 
       $rows = mysqli_num_rows($result);
-      if ($rows == 1) {
+      if ($rows > 0) {
           // $_SESSION["email"]=$email;
-          $_SESSION["register"] = true;
-          header("Location: index.php");
+          $a["recordExist"] = true;
 
       } else {
           // header("location:login.php");
-          $a["msg"] = true;
+          $sqlInsert = "INSERT INTO doctor_master(Full_name,Phone,Email,password)  VALUES ('$name','$phone','$email','$password')";
+          $resultInsert = mysqli_query($conn, $sqlInsert);
+      
+          if($resultInsert == 1){
+            $_SESSION["registration"] = true;
+            header("location:index.php");
+          } else{
+            // echo "Something went wrong";
+            $a["msg"] = true;
+          } 
       }
-    }    
+      
+    }
   }
+mysqli_close($conn);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -76,33 +98,42 @@
       <div class="card-body register-card-body">
         <p class="login-box-msg">Register a new membership</p>
         
-        <form action="regi-process.php" method="post">
+        <form action="" method="post">
           <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Full name" name="fname" value="<?php if(isset($_POST['register'])){ echo $name; }  ?>" >
+            <input type="text" class="form-control" placeholder="Full name" name="fname" value="<?php if(isset($_POST['register'])){ echo $name; }  ?>">
             <div class="input-group-append">
               <div class="input-group-text">
-                <span class="fas fa-user">
-                </span>
+                <span class="fas fa-user"></span>
               </div>
             </div>
           </div>
           <div class="mb-2">
-          <?php 
-            if(array_key_exists("name_null",$a)){
-              echo '<span style="color:red">Please enter your name.';
-            }
+            <?php 
+              if(array_key_exists("name_null",$a)){
+                echo '<span style="color:red">Please enter your name.';
+              }
             ?>
           </div>
               <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="Phone" name="no" required>
+                <input type="text" class="form-control" placeholder="Phone" name="no" value="<?php if(isset($_POST['register'])){ echo $phone; }  ?>">
                 <div class="input-group-append">
                   <div class="input-group-text">
                     <span class="fa fa-phone"></span>
                   </div>
                 </div>
               </div>
+              <div class="mb-2">
+                <span style="color:red"><?php 
+                if(array_key_exists("phone_null",$a)){
+                  echo 'Please enter your phone number.';
+                }
+                elseif(array_key_exists("phone_format",$a)){
+                  echo "Please enter valid phone number.";
+                }
+                ?></span>
+              </div>
               <div class="input-group mb-3">
-                <input type="email" class="form-control" placeholder="Email" name="email" value="<?php if(isset($_POST['register'])){ echo $email; }  ?>">
+                <input type="email" class="form-control" placeholder="Email" name="email" value="<?php if(isset($_POST['register'])){ echo $email; }  ?>" >
                 <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>
@@ -120,28 +151,55 @@
             ?></span>
           </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="Password" name="password" value="" id="password" required>
+          <input type="password" class="form-control" placeholder="Password" name="password" id="password" value="<?php if(isset($_POST['register'])){ echo $password; }  ?>" >
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
             </div>
           </div>
         </div>
+        <div class="mb-2">
+        <?php 
+            if(array_key_exists("password_null",$a)){
+              echo '<span style="color:red">Please enter your password.';
+            }
+          ?>
+        </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="Retype password" name="repass" value="" id="re-type-password" required>
+          <input type="password" class="form-control" placeholder="Retype password" name="repassword" id="re-type-password" value="<?php if(isset($_POST['register'])){ echo $repassword; }  ?>">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
             </div>
           </div>
+        </div>
+        <div class="mb-2">
+        <?php 
+            if(array_key_exists("repassword_null",$a)){
+              echo '<span style="color:red">Please enter your repassword.';
+            }
+            elseif(array_key_exists("match",$a)){
+              echo '<span style="color:red">Password and retype password does not match.';
+            }
+          ?>
         </div>
         <div class="row">
           <div class="col-12">
-            <button type="submit" class="btn btn-primary btn-block" name="register">Register</button>
+            <button type="submit" class="btn btn-primary btn-block"  name="register">Register</button>
           </div>
           <!-- /.col -->
         </div>
       </form>
+      <div class="mb-2">
+        <?php 
+            if(array_key_exists("msg",$a)){
+              echo '<span style="color:red">Please fill all field.';
+            }
+            if(array_key_exists("recordExist",$a)){
+              echo '<span style="color:red">This member is already exist in our system.';
+            }
+          ?>
+        </div>
 
       <a href="login.php" class="text-center">I already have a membership</a>
     </div>
